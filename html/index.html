@@ -1,0 +1,88 @@
+<html>
+    <head>
+    <meta http-equiv=Content-Type content="text/html; charset=windows-1252" />
+    <title>Living map</title>
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+    <script type="text/javascript" src="js/modernizr.js"></script>
+    
+    <link href="css/fonts/fontskit.css" rel="stylesheet"/>
+    <link href="css/style.css" rel="stylesheet"/>
+
+    <script>
+	    var websocket;
+	    $(document).ready(function(){
+	
+			var ws = null;
+			var host = "127.0.0.1"
+			var port = 8080
+			var socket = "p5websocket"
+			var x,y,z
+		
+			console.log("trying to open a websocket")
+			var _socket = (undefined == socket)?"":"/"+socket
+			ws = new WebSocket("ws://"+host+":"+port+_socket)
+			url = "message origin=ws://"+host+":"+port+_socket+",";
+	
+			ws.onopen = function () {
+			  console.log("opened")
+			  ws.send('Ping');
+			};
+			ws.onerror = function (e) {console.log('WebSocket did close ',e);};
+			ws.onerror = function (error) {console.log('WebSocket Error ' + error);	};
+			ws.onmessage = function (e) {
+				data = e.data;
+	            msg = e.data.substring(0, e.data.indexOf(' ')).toLowerCase();
+	            switch(msg){
+	                case 'push' :
+	                	push();
+	                	break;
+	                case 'move' :
+	                	move(data); 
+	                	break;
+	                case 'start' :
+	                	console.log(msg);
+	                	$("#say_hello figure").fadeOut(600, function(){
+							$("#say_hello").fadeOut(600);
+							$("#cursor").fadeIn(600);
+						});
+	                	break;
+	                case 'end' :
+	                	console.log(msg);
+						$("#say_hello, #say_hello figure").fadeIn(800);
+						$("#cursor").fadeOut(600);
+	                	break;
+	                case 'right' :
+	                	console.log(msg);
+	                	break;
+	                case 'left' :
+	                	console.log(msg);
+	                	break;
+	            }
+	            function push(){
+	                console.log("PUSH");
+	                //$("#cursor").css({"transform":"scale(2)"}).animate({"transform":"scale(1)"}, 200);
+	                $(".wrapper").fadeOut(100).fadeIn(100);
+	            }
+	            function move(data){
+	                splitmsg = data.split(" ");
+	            	console.log(splitmsg[1]+" | "+splitmsg[2]+" | "+splitmsg[3]+" | "+splitmsg[4]);
+	            	$("#cursor").css({"left":splitmsg[1]*100/640+"%","top":splitmsg[2]*100/240+"%"});
+	            }
+			};
+		});
+    </script>
+
+    </head>
+    <body>
+    	<!-- This is the container for the carousel. -->
+        <div class="wrapper">
+        	<div id="say_hello">
+        		<h1 id="logo"><img src="css/img/logo.png" /></h1>
+	        	<figure>
+	        		<img src="css/img/hello.png" width="200" />
+	        		<figcaption>Commencer l'expérience</figcaption>
+	        	</figure>
+        	</div>
+			<div id="cursor"></div>
+        </body>
+</html>
